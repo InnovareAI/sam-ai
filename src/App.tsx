@@ -25,6 +25,7 @@ import WorkspaceSettings from "./pages/WorkspaceSettings";
 import ProfileSettings from "./pages/ProfileSettings";
 import CampaignDetail from "./pages/CampaignDetail";
 import Agent from "./pages/Agent";
+import Automation from "./pages/Automation";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +64,12 @@ const App: React.FC = () => {
               <Route path="/agent" element={
                 <ProtectedRoute>
                   <Agent />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/automation" element={
+                <ProtectedRoute>
+                  <Automation />
                 </ProtectedRoute>
               } />
               
