@@ -12,6 +12,8 @@ import { useChatHistory } from "@/hooks/useChatHistory";
 import { useVoice } from "@/hooks/useVoice";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ChatSkeleton } from "@/components/ui/skeleton";
+import { AgentService } from "@/lib/ai-agent";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   id: string;
@@ -84,6 +86,10 @@ export function ConversationalInterface() {
   } = useChatHistory();
   
   const { speakText } = useVoice();
+  const { user } = useAuth();
+  
+  // Initialize AI Agent
+  const [agentService] = useState(() => new AgentService());
   
   // Enable keyboard shortcuts
   useKeyboardShortcuts();
@@ -110,7 +116,7 @@ export function ConversationalInterface() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = (messageContent?: string) => {
+  const handleSendMessage = async (messageContent?: string) => {
     const content = messageContent || input;
     if (!content.trim()) return;
 
@@ -138,28 +144,58 @@ export function ConversationalInterface() {
     setIsLoading(true);
     setSamStatus("Sam is reading your message...");
     
-    // Simulate Sam's processing with different statuses
-    setTimeout(() => setSamStatus("Sam is analyzing your request..."), 1000);
-    setTimeout(() => setSamStatus("Sam is researching the best response..."), 2500);
-    setTimeout(() => setSamStatus("Sam is talking to the Knowledge Agent..."), 4000);
-    setTimeout(() => setSamStatus("Sam is preparing your response..."), 5500);
-
-    // Simulate Sam's response
-    setTimeout(() => {
+    // Update status messages during processing
+    const statusUpdates = [
+      { delay: 1000, message: "Sam is analyzing your request..." },
+      { delay: 2500, message: "Sam is researching the best response..." },
+      { delay: 4000, message: "Sam is consulting the knowledge base..." },
+      { delay: 5500, message: "Sam is preparing your response..." }
+    ];
+    
+    statusUpdates.forEach(({ delay, message }) => {
+      setTimeout(() => setSamStatus(message), delay);
+    });
+    
+    try {
+      // Add user context on first message
+      if (messages.length <= 1 && user?.id) {
+        await agentService.addUserContext(user.id);
+      }
+      
+      // Get AI response
+      const response = await agentService.processMessage(content);
+      
       const samResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I understand what you're looking for. Let me help you with that. Based on your request, here are some initial thoughts and questions to get us started...",
+        content: response.content,
         sender: "sam",
         timestamp: new Date(),
       };
+      
       setMessages(prev => [...prev, samResponse]);
       if (sessionId) {
         addMessageToSession(sessionId, samResponse);
       }
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      
+      // Fallback response
+      const samResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I apologize, but I'm having trouble processing your request right now. Please try again or let me know if you'd like to discuss something else.",
+        sender: "sam",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, samResponse]);
+      if (sessionId) {
+        addMessageToSession(sessionId, samResponse);
+      }
+    } finally {
       setSamIsActive(false);
       setIsLoading(false);
       setSamStatus("Ready to help you");
-    }, 7000);
+    }
   };
 
   const handleQuickAction = (action: QuickAction) => {
