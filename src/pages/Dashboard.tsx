@@ -8,6 +8,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useRealtimeData } from "@/hooks/useRealtimeData";
+import { useAuth } from "@/contexts/AuthContext";
+import { DevTools } from "@/components/dev/DevTools";
 import { 
   Users, 
   Mail, 
@@ -27,7 +30,9 @@ import {
 export default function Dashboard() {
   const [isConversational, setIsConversational] = useState(false);
   const navigate = useNavigate();
+  const { user, organization } = useAuth();
   const { analytics, chartData, campaignMetrics, refreshData, isLoading } = useAnalytics();
+  const { refreshAllData, isConnected } = useRealtimeData();
 
   const handleToggleMode = (conversational: boolean) => {
     if (conversational) {
@@ -61,15 +66,25 @@ export default function Dashboard() {
               <div className="backdrop-blur-xl bg-white/80 border border-white/20 rounded-2xl p-4 lg:p-8 shadow-2xl">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
-                      Analytics Dashboard
-                    </h1>
-                    <p className="text-slate-600 mt-2 text-base lg:text-lg">Real-time insights into your outreach performance</p>
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
+                        Analytics Dashboard
+                      </h1>
+                      {isConnected && (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span>Live</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-slate-600 mt-2 text-base lg:text-lg">
+                      {organization?.name ? `${organization.name} • ` : ''}Real-time insights into your outreach performance
+                    </p>
                   </div>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <Button 
                       variant="outline" 
-                      onClick={refreshData}
+                      onClick={refreshAllData}
                       disabled={isLoading}
                       className="backdrop-blur-sm bg-white/50 border border-white/30 hover:bg-white/70 transition-all duration-300 shadow-lg"
                     >
@@ -261,6 +276,7 @@ export default function Dashboard() {
           </main>
         </div>
       </div>
+      <DevTools />
     </SidebarProvider>
   );
 }

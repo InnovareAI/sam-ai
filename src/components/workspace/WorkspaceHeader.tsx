@@ -1,4 +1,5 @@
 import { Search, Bell, Plus, User, MessageSquare, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,8 @@ interface WorkspaceHeaderProps {
 }
 
 export function WorkspaceHeader({ isConversational, onToggleMode }: WorkspaceHeaderProps) {
+  const navigate = useNavigate();
+
   return (
     <header className={`border-b px-4 lg:px-6 py-4 ${isConversational ? 'bg-gray-900 border-gray-700' : 'bg-background border-border'}`}>
       <div className="flex items-center justify-between">
@@ -67,11 +70,19 @@ export function WorkspaceHeader({ isConversational, onToggleMode }: WorkspaceHea
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>New Campaign</DropdownMenuItem>
-              <DropdownMenuItem>New Contact</DropdownMenuItem>
-              <DropdownMenuItem>New Company</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/campaigns')}>
+                New Campaign
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/contacts')}>
+                New Contact
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/accounts')}>
+                New Company
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Import Contacts</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/contacts')}>
+                Import Contacts
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           
@@ -90,10 +101,19 @@ export function WorkspaceHeader({ isConversational, onToggleMode }: WorkspaceHea
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Profile Settings</DropdownMenuItem>
-              <DropdownMenuItem>Workspace Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/profile-settings')}>
+                Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/workspace-settings')}>
+                Workspace Settings
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Sign Out</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                // TODO: Implement sign out functionality
+                console.log('Sign out clicked');
+              }}>
+                Sign Out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

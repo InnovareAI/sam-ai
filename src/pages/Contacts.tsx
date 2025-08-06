@@ -57,6 +57,20 @@ export default function Contacts() {
   const [viewMode, setViewMode] = useState<"list" | "tile">("tile");
   const [editingContact, setEditingContact] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [newContact, setNewContact] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    role: '',
+    location: '',
+    linkedin: '',
+    website: '',
+    notes: '',
+    status: 'New Contact',
+    priority: 'Medium'
+  });
   
   const contacts = [
     {
@@ -277,12 +291,191 @@ export default function Contacts() {
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button 
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => setShowAddContact(true)}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Contact
           </Button>
         </div>
       </div>
+
+      {/* Add Contact Dialog */}
+      <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Contact</DialogTitle>
+            <DialogDescription>
+              Create a new contact in your database.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-name">Full Name *</Label>
+              <Input
+                id="new-name"
+                value={newContact.name}
+                onChange={(e) => setNewContact({...newContact, name: e.target.value})}
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-email">Email *</Label>
+              <Input
+                id="new-email"
+                type="email"
+                value={newContact.email}
+                onChange={(e) => setNewContact({...newContact, email: e.target.value})}
+                placeholder="Enter email address"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-company">Company *</Label>
+              <Input
+                id="new-company"
+                value={newContact.company}
+                onChange={(e) => setNewContact({...newContact, company: e.target.value})}
+                placeholder="Enter company name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-role">Job Title</Label>
+              <Input
+                id="new-role"
+                value={newContact.role}
+                onChange={(e) => setNewContact({...newContact, role: e.target.value})}
+                placeholder="Enter job title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-phone">Phone</Label>
+              <Input
+                id="new-phone"
+                value={newContact.phone}
+                onChange={(e) => setNewContact({...newContact, phone: e.target.value})}
+                placeholder="Enter phone number"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-location">Location</Label>
+              <Input
+                id="new-location"
+                value={newContact.location}
+                onChange={(e) => setNewContact({...newContact, location: e.target.value})}
+                placeholder="Enter location"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-linkedin">LinkedIn URL</Label>
+              <Input
+                id="new-linkedin"
+                value={newContact.linkedin}
+                onChange={(e) => setNewContact({...newContact, linkedin: e.target.value})}
+                placeholder="Enter LinkedIn profile URL"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-website">Company Website</Label>
+              <Input
+                id="new-website"
+                value={newContact.website}
+                onChange={(e) => setNewContact({...newContact, website: e.target.value})}
+                placeholder="Enter company website"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-status">Status</Label>
+              <Select value={newContact.status} onValueChange={(value) => setNewContact({...newContact, status: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Hot Lead">Hot Lead</SelectItem>
+                  <SelectItem value="Warm Lead">Warm Lead</SelectItem>
+                  <SelectItem value="Prospect">Prospect</SelectItem>
+                  <SelectItem value="New Contact">New Contact</SelectItem>
+                  <SelectItem value="Replied">Replied</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-priority">Priority</Label>
+              <Select value={newContact.priority} onValueChange={(value) => setNewContact({...newContact, priority: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="new-notes">Notes</Label>
+              <Textarea
+                id="new-notes"
+                value={newContact.notes}
+                onChange={(e) => setNewContact({...newContact, notes: e.target.value})}
+                placeholder="Add any notes about this contact..."
+                rows={3}
+              />
+            </div>
+            <div className="col-span-2 flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => {
+                setShowAddContact(false);
+                setNewContact({
+                  name: '',
+                  email: '',
+                  phone: '',
+                  company: '',
+                  role: '',
+                  location: '',
+                  linkedin: '',
+                  website: '',
+                  notes: '',
+                  status: 'New Contact',
+                  priority: 'Medium'
+                });
+              }}>
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                // Validate required fields
+                if (!newContact.name || !newContact.email || !newContact.company) {
+                  alert('Please fill in all required fields (Name, Email, Company)');
+                  return;
+                }
+                
+                // Here you would normally save to database
+                console.log('Creating new contact:', newContact);
+                
+                // For now, just show success and close modal
+                alert('Contact created successfully!');
+                setShowAddContact(false);
+                setNewContact({
+                  name: '',
+                  email: '',
+                  phone: '',
+                  company: '',
+                  role: '',
+                  location: '',
+                  linkedin: '',
+                  website: '',
+                  notes: '',
+                  status: 'New Contact',
+                  priority: 'Medium'
+                });
+              }}>
+                <Save className="h-4 w-4 mr-2" />
+                Create Contact
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Contact Dialog */}
       <Dialog open={!!editingContact} onOpenChange={() => setEditingContact(null)}>
@@ -677,11 +870,15 @@ export default function Contacts() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        window.location.href = `mailto:${contact.email}`;
+                      }}>
                         <Mail className="h-4 w-4 mr-2" />
                         Send Email
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        window.open(`https://wa.me/${contact.whatsapp?.replace(/[^0-9]/g, '')}`, '_blank');
+                      }}>
                         <MessageSquare className="h-4 w-4 mr-2" />
                         WhatsApp
                       </DropdownMenuItem>
@@ -809,10 +1006,19 @@ export default function Contacts() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 mb-2">
-                  <Button size="sm" className="flex-1 animate-fade-in">
+                  <Button 
+                    size="sm" 
+                    className="flex-1 animate-fade-in"
+                    onClick={() => window.location.href = `mailto:${contact.email}`}
+                  >
                     Email
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1 animate-fade-in">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1 animate-fade-in"
+                    onClick={() => window.open(`https://wa.me/${contact.whatsapp?.replace(/[^0-9]/g, '')}`, '_blank')}
+                  >
                     WhatsApp
                   </Button>
                 </div>

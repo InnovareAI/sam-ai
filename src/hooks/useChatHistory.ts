@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useConversations } from './useConversations';
 
 interface Message {
   id: string;
@@ -15,84 +16,43 @@ interface ChatSession {
   lastUpdated: Date;
 }
 
-const STORAGE_KEY = 'sam_chat_history';
-const MAX_SESSIONS = 50; // Limit stored sessions
-
 export function useChatHistory() {
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const { conversations, createConversation, sendMessage, deleteConversation, isLoading } = useConversations();
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
-  // Load sessions from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Convert date strings back to Date objects
-        const sessions = parsed.map((session: any) => ({
-          ...session,
-          createdAt: new Date(session.createdAt),
-          lastUpdated: new Date(session.lastUpdated),
-          messages: session.messages.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }))
-        }));
-        setSessions(sessions);
-      }
-    } catch (error) {
-      console.error('Failed to load chat history:', error);
-    }
-  }, []);
-
-  // Save sessions to localStorage whenever sessions change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-    } catch (error) {
-      console.error('Failed to save chat history:', error);
-    }
-  }, [sessions]);
+  // Transform Supabase conversations to match the expected interface
+  const sessions: ChatSession[] = conversations.map(conv => ({
+    id: conv.id,
+    title: conv.title,
+    messages: conv.messages.map(msg => ({
+      id: msg.id,
+      content: msg.content,
+      sender: msg.role === 'user' ? 'user' : 'sam',
+      timestamp: new Date(msg.created_at),
+    })),
+    createdAt: new Date(conv.created_at),
+    lastUpdated: new Date(conv.updated_at),
+  }));
 
   const createNewSession = useCallback((initialMessage?: Message) => {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const now = new Date();
+    const title = initialMessage?.content.slice(0, 50) + (initialMessage?.content.length > 50 ? '...' : '') || 'New Chat';
     
-    const newSession: ChatSession = {
-      id: sessionId,
-      title: initialMessage?.content.slice(0, 50) + (initialMessage?.content.length > 50 ? '...' : '') || 'New Chat',
-      messages: initialMessage ? [initialMessage] : [],
-      createdAt: now,
-      lastUpdated: now
-    };
-
-    setSessions(prev => {
-      const updated = [newSession, ...prev].slice(0, MAX_SESSIONS);
-      return updated;
-    });
+    // Create conversation in Supabase
+    createConversation({ title });
     
-    setCurrentSessionId(sessionId);
-    return sessionId;
-  }, []);
+    // Note: The actual session ID will be set when the conversation is created
+    // We'll need to wait for the conversations to update
+    return 'pending'; // Return a placeholder ID
+  }, [createConversation]);
 
   const addMessageToSession = useCallback((sessionId: string, message: Message) => {
-    setSessions(prev => prev.map(session => {
-      if (session.id === sessionId) {
-        const updatedMessages = [...session.messages, message];
-        const title = session.messages.length === 0 && message.sender === 'user' 
-          ? message.content.slice(0, 50) + (message.content.length > 50 ? '...' : '')
-          : session.title;
-
-        return {
-          ...session,
-          title,
-          messages: updatedMessages,
-          lastUpdated: new Date()
-        };
-      }
-      return session;
-    }));
-  }, []);
+    // Send message to Supabase
+    sendMessage({
+      conversation_id: sessionId,
+      role: message.sender === 'user' ? 'user' : 'assistant',
+      content: message.content,
+    });
+  }, [sendMessage]);
 
   const loadSession = useCallback((sessionId: string) => {
     const session = sessions.find(s => s.id === sessionId);
@@ -104,16 +64,17 @@ export function useChatHistory() {
   }, [sessions]);
 
   const deleteSession = useCallback((sessionId: string) => {
-    setSessions(prev => prev.filter(s => s.id !== sessionId));
+    deleteConversation(sessionId);
     if (currentSessionId === sessionId) {
       setCurrentSessionId(null);
     }
-  }, [currentSessionId]);
+  }, [deleteConversation, currentSessionId]);
 
   const clearAllHistory = useCallback(() => {
-    setSessions([]);
+    // Delete all conversations
+    conversations.forEach(conv => deleteConversation(conv.id));
     setCurrentSessionId(null);
-  }, []);
+  }, [conversations, deleteConversation]);
 
   const getCurrentSession = useCallback(() => {
     if (!currentSessionId) return null;
@@ -128,6 +89,7 @@ export function useChatHistory() {
     loadSession,
     deleteSession,
     clearAllHistory,
-    getCurrentSession
+    getCurrentSession,
+    isLoading
   };
 }
