@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useContacts } from "@/hooks/useContacts";
 import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceSidebar } from "@/components/workspace/WorkspaceSidebar";
 import { ConversationalInterface } from "@/components/workspace/ConversationalInterface";
@@ -68,11 +69,18 @@ export default function Contacts() {
     linkedin: '',
     website: '',
     notes: '',
-    status: 'New Contact',
-    priority: 'Medium'
+    status: 'New Contact' as const,
+    priority: 'Medium' as const
   });
   
-  const contacts = [
+  // Use Supabase hook for data
+  const { contacts, isLoading, createContact } = useContacts();
+  
+  // Use real contacts data, fallback to empty array if no data
+  const displayContacts = contacts || [];
+  
+  // Mock data structure for reference
+  const _mockContacts = [
     {
       id: 1,
       name: "Jennifer Fleming",
@@ -239,6 +247,28 @@ export default function Contacts() {
     console.log("Saving contact:", editingContact);
     setEditingContact(null);
   };
+  
+  // Show loading spinner while data loads
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-gray-50">
+          <WorkspaceSidebar isConversational={false} />
+          <div className="flex-1 flex flex-col">
+            <WorkspaceHeader isConversational={false} onToggleMode={setIsConversational} />
+            <main className="flex-1 p-8">
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Loading contacts...</p>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
   
   if (isConversational) {
     return (
@@ -442,7 +472,7 @@ export default function Contacts() {
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
-              <Button onClick={() => {
+              <Button onClick={async () => {
                 // Validate required fields
                 if (!newContact.name || !newContact.email || !newContact.company) {
                   alert('Please fill in all required fields (Name, Email, Company)');
@@ -452,9 +482,17 @@ export default function Contacts() {
                 // Here you would normally save to database
                 console.log('Creating new contact:', newContact);
                 
-                // For now, just show success and close modal
-                alert('Contact created successfully!');
+                // Validate required fields
+                if (!newContact.name || !newContact.email) {
+                  alert('Please fill in required fields');
+                  return;
+                }
+                
+                // Create contact using Supabase
+                await createContact.mutateAsync(newContact);
                 setShowAddContact(false);
+                
+                // Reset form
                 setNewContact({
                   name: '',
                   email: '',
@@ -465,8 +503,8 @@ export default function Contacts() {
                   linkedin: '',
                   website: '',
                   notes: '',
-                  status: 'New Contact',
-                  priority: 'Medium'
+                  status: 'New Contact' as const,
+                  priority: 'Medium' as const
                 });
               }}>
                 <Save className="h-4 w-4 mr-2" />
@@ -750,7 +788,7 @@ export default function Contacts() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {contacts.map((contact) => (
+                {displayContacts.map((contact) => (
                   <TableRow key={contact.id} className="hover:bg-muted/50">
                     <TableCell>
                       <div className="flex items-center gap-3">
