@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ThemeProvider } from "next-themes";
+import { useGlobalRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -37,6 +38,9 @@ const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
+  // Enable global real-time subscriptions
+  useGlobalRealtimeSubscriptions();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
