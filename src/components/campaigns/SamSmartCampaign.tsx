@@ -10,6 +10,7 @@ import {
   Info, TrendingUp, Users, Building
 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import { useRAGCampaigns } from "@/hooks/useRAGCampaigns";
 
 interface SmartCampaign {
   messages: Array<{
@@ -25,9 +26,16 @@ interface SmartCampaign {
 
 export const SamSmartCampaign: React.FC = () => {
   const [targetDescription, setTargetDescription] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [campaign, setCampaign] = useState<SmartCampaign | null>(null);
   const [selectedProspects, setSelectedProspects] = useState<any[]>([]);
+  
+  // Use the RAG campaigns hook
+  const { 
+    isGenerating, 
+    campaign, 
+    generateCampaign, 
+    refineCampaign,
+    launchCampaign 
+  } = useRAGCampaigns();
 
   // Mock prospects for demo
   const mockProspects = [
@@ -57,90 +65,21 @@ export const SamSmartCampaign: React.FC = () => {
     }
   ];
 
-  const generateSmartCampaign = () => {
-    setIsGenerating(true);
+  const handleGenerateCampaign = async () => {
+    if (!targetDescription && selectedProspects.length === 0) {
+      toast({
+        title: "Select prospects",
+        description: "Please select at least one prospect to target",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // Simulate Sam accessing RAG and generating campaign
-    setTimeout(() => {
-      const smartCampaign: SmartCampaign = {
-        strategy: "LinkedIn-first approach with technical proof points, transitioning to email for detailed case studies",
-        expectedOutcome: "25-30% response rate based on ICP match and trigger events",
-        messages: [
-          {
-            day: 0,
-            channel: 'linkedin',
-            content: `Hi {{firstName}},
-
-I noticed {{company}} is {{trigger_event}} - congrats! This usually means data synchronization becomes critical.
-
-At DataSync Pro, we just helped TechCorp reduce their data pipeline complexity by 75% while achieving real-time sync across 12 systems.
-
-Given your role leading engineering at {{company}}, I thought our approach might be relevant.
-
-Worth connecting?
-
-Best,
-Alex`,
-            reasoning: "Leveraging trigger event (Series B) and social proof from similar company (TechCorp). Technical tone for engineering leader."
-          },
-          {
-            day: 3,
-            channel: 'linkedin',
-            content: `Thanks for connecting, {{firstName}}!
-
-Quick question - are you still using batch processing for your Salesforce-to-warehouse sync, or have you moved to real-time?
-
-We've found that companies at your stage typically lose 4-6 hours daily on data lag. Curious what your experience has been?
-
-No pitch - genuinely interested in how {{company}} handles this.`,
-            reasoning: "Pain point discovery using specific technical language. Non-salesy approach builds trust with technical buyers."
-          },
-          {
-            day: 7,
-            channel: 'email',
-            subject: '{{company}} data architecture - quick thought',
-            content: `Hi {{firstName}},
-
-Following up from LinkedIn - I pulled together a quick architecture diagram showing how TechCorp eliminated their 6-hour data lag.
-
-[Link to technical architecture diagram]
-
-Key improvements they saw:
-• Real-time customer data in Snowflake (< 1 second latency)
-• 40 engineering hours/week saved on data pipeline maintenance  
-• Zero data inconsistencies across systems
-
-The implementation took their team 5 minutes (seriously).
-
-Worth a 15-min technical deep-dive to see if this could work for {{company}}?
-
-Best,
-Alex
-
-P.S. - Here's our ROI calculator if you want to run your own numbers: [link]`,
-            reasoning: "Transitioning to email for detailed technical content. Leading with architecture (appeals to engineers) and specific metrics."
-          },
-          {
-            day: 12,
-            channel: 'email',
-            subject: 'Re: {{company}} data architecture',
-            content: `Hi {{firstName}},
-
-Last email - I know you're busy scaling {{company}}.
-
-If real-time data sync becomes a priority, here's a 5-minute demo showing the actual setup process: [link]
-
-Otherwise, best of luck with the Series B growth! 
-
-Alex`,
-            reasoning: "Breakup email with valuable resource. Acknowledges their situation (Series B) and provides easy next step."
-          }
-        ]
-      };
-      
-      setCampaign(smartCampaign);
-      setIsGenerating(false);
-    }, 2000);
+    // Use selected prospects or mock data
+    const prospectsToUse = selectedProspects.length > 0 ? selectedProspects : mockProspects;
+    
+    // Generate campaign using RAG
+    await generateCampaign(targetDescription, prospectsToUse);
   };
 
   return (
@@ -208,7 +147,7 @@ Alex`,
               onChange={(e) => setTargetDescription(e.target.value)}
               className="flex-1"
             />
-            <Button onClick={generateSmartCampaign} disabled={isGenerating}>
+            <Button onClick={handleGenerateCampaign} disabled={isGenerating}>
               {isGenerating ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />
               ) : (
@@ -357,9 +296,13 @@ Alex`,
 
             {/* Launch Button */}
             <div className="flex gap-3 mt-6">
-              <Button className="flex-1" size="lg">
+              <Button 
+                className="flex-1" 
+                size="lg"
+                onClick={() => launchCampaign(campaign!, selectedProspects)}
+              >
                 <Play className="mr-2 h-4 w-4" />
-                Launch Campaign for {selectedProspects.length} Prospects
+                Launch Campaign for {selectedProspects.length > 0 ? selectedProspects.length : mockProspects.length} Prospects
               </Button>
               <Button variant="outline" size="lg">
                 Edit Messages
