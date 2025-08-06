@@ -24,7 +24,9 @@ import {
   Trash2,
   Plus,
   X,
-  Save
+  Save,
+  Zap,
+  Sparkles
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,10 +40,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CampaignBuilder } from "@/components/campaigns/CampaignBuilder";
 
 export default function Campaigns() {
   const [isConversational, setIsConversational] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const [showCampaignBuilder, setShowCampaignBuilder] = useState(false);
   const [newCampaignData, setNewCampaignData] = useState({
     name: '',
     description: '',
@@ -94,6 +98,32 @@ export default function Campaigns() {
             <div className="flex-1 overflow-auto">
               <ConversationalInterface />
             </div>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
+  // Show Campaign Builder if toggled
+  if (showCampaignBuilder) {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-gray-50">
+          <WorkspaceSidebar isConversational={isConversational} />
+          <div className="flex-1 flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCampaignBuilder(false)}
+              >
+                ← Back to Campaigns
+              </Button>
+              <Badge variant="outline" className="px-3 py-1">
+                <Zap className="mr-1 h-3 w-3" />
+                Advanced Campaign Builder
+              </Badge>
+            </div>
+            <CampaignBuilder />
           </div>
         </div>
       </SidebarProvider>
@@ -201,13 +231,29 @@ export default function Campaigns() {
           <h1 className="text-3xl font-bold text-gray-900">Campaigns</h1>
           <p className="text-gray-600 mt-1">Manage your outreach campaigns across channels</p>
         </div>
-        <Button 
-          className="bg-primary hover:bg-primary/90"
-          onClick={() => setShowCreateCampaign(true)}
-        >
-          <Target className="h-4 w-4 mr-2" />
-          New Campaign
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => window.location.href = '/campaigns/hub'}
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Campaign Hub
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => setShowCampaignBuilder(true)}
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            Advanced Builder
+          </Button>
+          <Button 
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => setShowCreateCampaign(true)}
+          >
+            <Target className="h-4 w-4 mr-2" />
+            Quick Campaign
+          </Button>
+        </div>
       </div>
 
       {/* Create Campaign Dialog */}

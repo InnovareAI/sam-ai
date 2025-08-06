@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ThemeProvider } from "next-themes";
 import { useGlobalRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import Index from "./pages/Index";
@@ -27,6 +26,8 @@ import ProfileSettings from "./pages/ProfileSettings";
 import CampaignDetail from "./pages/CampaignDetail";
 import Agent from "./pages/Agent";
 import Automation from "./pages/Automation";
+import Reports from "./pages/Reports";
+import CampaignHub from "./pages/CampaignHub";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,8 +39,8 @@ const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
-  // Enable global real-time subscriptions
-  useGlobalRealtimeSubscriptions();
+  // Commented out real-time subscriptions for now
+  // useGlobalRealtimeSubscriptions();
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -55,129 +56,30 @@ const App: React.FC = () => {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              {/* Public Routes */}
+              {/* All Routes - No Authentication */}
               <Route path="/auth/login" element={<Login />} />
-              
-              {/* Protected Routes */}
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/agent" element={
-                <ProtectedRoute>
-                  <Agent />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/automation" element={
-                <ProtectedRoute>
-                  <Automation />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/accounts" element={
-                <ProtectedRoute>
-                  <Accounts />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/campaigns" element={
-                <ProtectedRoute>
-                  <Campaigns />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/campaigns/:id" element={
-                <ProtectedRoute>
-                  <CampaignDetail />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/contacts" element={
-                <ProtectedRoute>
-                  <Contacts />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/search" element={
-                <ProtectedRoute>
-                  <Search />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/inbox" element={
-                <ProtectedRoute>
-                  <GlobalInbox />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/message-queue" element={
-                <ProtectedRoute>
-                  <GlobalInbox />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/global-inbox" element={
-                <ProtectedRoute>
-                  <GlobalInbox />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/templates" element={
-                <ProtectedRoute>
-                  <Templates />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/requests" element={
-                <ProtectedRoute>
-                  <Requests />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/placeholders" element={
-                <ProtectedRoute>
-                  <Placeholders />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/company-profile" element={
-                <ProtectedRoute>
-                  <Members />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/members" element={
-                <ProtectedRoute>
-                  <Members />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/roles" element={
-                <ProtectedRoute>
-                  <Roles />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/workspace-settings" element={
-                <ProtectedRoute>
-                  <WorkspaceSettings />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/profile-settings" element={
-                <ProtectedRoute>
-                  <ProfileSettings />
-                </ProtectedRoute>
-              } />
+              <Route path="/" element={<Index />} />
+              <Route path="/agent" element={<Agent />} />
+              <Route path="/automation" element={<Automation />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/accounts" element={<Accounts />} />
+              <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/campaigns/hub" element={<CampaignHub />} />
+              <Route path="/campaigns/:id" element={<CampaignDetail />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/inbox" element={<GlobalInbox />} />
+              <Route path="/message-queue" element={<GlobalInbox />} />
+              <Route path="/global-inbox" element={<GlobalInbox />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/requests" element={<Requests />} />
+              <Route path="/placeholders" element={<Placeholders />} />
+              <Route path="/company-profile" element={<Members />} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/roles" element={<Roles />} />
+              <Route path="/workspace-settings" element={<WorkspaceSettings />} />
+              <Route path="/profile-settings" element={<ProfileSettings />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

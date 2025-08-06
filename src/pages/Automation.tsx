@@ -3,7 +3,9 @@ import { WorkspaceHeader } from "@/components/workspace/WorkspaceHeader";
 import { WorkspaceSidebar } from "@/components/workspace/WorkspaceSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AutomationWorkflows } from "@/components/automation/AutomationWorkflows";
+import { WorkflowDesigner } from "@/components/admin/WorkflowDesigner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,11 +20,14 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  PlayCircle
+  PlayCircle,
+  Shield
 } from "lucide-react";
 
 export default function Automation() {
   const [isConversational, setIsConversational] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   
   // Mock automation stats
   const stats = {
@@ -124,6 +129,12 @@ export default function Automation() {
                   <TabsTrigger value="templates">Templates</TabsTrigger>
                   <TabsTrigger value="triggers">Triggers</TabsTrigger>
                   <TabsTrigger value="settings">Settings</TabsTrigger>
+                  {isAdmin && (
+                    <TabsTrigger value="designer" className="ml-4">
+                      <Shield className="h-4 w-4 mr-2" />
+                      Admin Designer
+                    </TabsTrigger>
+                  )}
                 </TabsList>
                 
                 <TabsContent value="workflows" className="space-y-4">
@@ -327,6 +338,12 @@ export default function Automation() {
                     </CardContent>
                   </Card>
                 </TabsContent>
+                
+                {isAdmin && (
+                  <TabsContent value="designer" className="space-y-4">
+                    <WorkflowDesigner />
+                  </TabsContent>
+                )}
               </Tabs>
             </div>
           </main>

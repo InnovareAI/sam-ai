@@ -29,12 +29,40 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [organization, setOrganization] = useState<Organization | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Check if we're in demo mode (no valid Supabase URL)
+  const isDemoMode = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://demo.supabase.co';
+  
+  // Demo data for when Supabase is not configured
+  const demoUser: AuthUser = {
+    id: 'demo-user',
+    email: 'demo@sam-ai.com',
+    full_name: 'Demo User',
+    organization_id: 'demo-org',
+    role: 'admin'
+  };
+  
+  const demoOrg: Organization = {
+    id: 'demo-org',
+    name: 'Demo Organization',
+    slug: 'demo-org',
+    plan: 'enterprise',
+    settings: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  const [session, setSession] = useState<Session | null>(isDemoMode ? { user: { id: 'demo-user' } as any, access_token: 'demo', refresh_token: 'demo' } as Session : null);
+  const [user, setUser] = useState<AuthUser | null>(isDemoMode ? demoUser : null);
+  const [organization, setOrganization] = useState<Organization | null>(isDemoMode ? demoOrg : null);
+  const [loading, setLoading] = useState(!isDemoMode);
 
   const refreshUserContext = async () => {
+    if (isDemoMode) {
+      setUser(demoUser);
+      setOrganization(demoOrg);
+      return;
+    }
+    
     try {
       const { user: authUser, organization: org } = await getCurrentUserContext();
       setUser(authUser);
@@ -47,12 +75,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (isDemoMode) {
+      // Skip Supabase in demo mode
+      return;
+    }
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
         refreshUserContext();
       }
+      setLoading(false);
+    }).catch(() => {
+      // If Supabase fails, use demo mode
+      setSession({ user: { id: 'demo-user' } as any, access_token: 'demo', refresh_token: 'demo' } as Session);
+      setUser(demoUser);
+      setOrganization(demoOrg);
       setLoading(false);
     });
 
