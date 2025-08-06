@@ -1,97 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sam AI - Sales Automation Platform</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            text-align: center;
-        }
-        
-        .container {
-            max-width: 600px;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-        
-        .status {
-            background: rgba(0, 255, 0, 0.2);
-            padding: 1rem;
-            border-radius: 10px;
-            border-left: 4px solid #00ff00;
-            margin-bottom: 2rem;
-        }
-        
-        .links {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .link {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🤖 Sam AI</h1>
-        <p class="subtitle">Sales Automation Platform</p>
-        
-        <div class="status">
-            <h3>🚀 Development Environment Ready</h3>
-            <p>GitHub Repository: Connected ✅<br>
-            Netlify Deployment: In Progress 🔧<br>
-            Local Development: Ready ✅</p>
-        </div>
-        
-        <div class="links">
-            <a href="https://github.com/InnovareAI/sam-ai" class="link" target="_blank">
-                📦 GitHub Repository
-            </a>
-            <a href="#" class="link">
-                🌐 Live Demo (Coming Soon)
-            </a>
-        </div>
-    </div>
-</body>
+    <meta name="description" content="InnovareAI's intelligent sales automation solution powered by AI workflows" />
+    <meta name="author" content="InnovareAI" />
+
+    <meta property="og:title" content="Sam AI - Sales Automation Platform" />
+    <meta property="og:description" content="InnovareAI's intelligent sales automation solution powered by AI workflows" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
